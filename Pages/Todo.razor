@@ -8,12 +8,30 @@
 <input @bind="newTodo" class="form-control" placehoder="Enter a new todo" @onkeydown="HandleEnter">
 <button @onclick="AddTodo">Add Todo</button>
 
-@*En liste ofer todos*@
+@*En liste over todos*@
 <ul class="list-group">
-    @foreach (var todo in todos)
+    @foreach (var todo in todos.Where(t => !t.IsCompleted))
     {
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="text-decoration: @(todo.IsCompleted ? "Line-through": "none");">@todo.Title</span>
+            <div>
+                <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
+                    @(todo.IsCompleted ? "Undo" : "Complete")
+                </button>
+                <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
+                    Delete
+                </button>
+            </div>
+        </li>
+    }
+</ul>
+
+@*En liste over fullførte TODO's*@
+<ul class="list-group">
+    @foreach (var todo in todos.Where(t => t.IsCompleted))
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="text-decoration: @(todo.IsCompleted ? "Line-through" : "none");">@todo.Title</span>
             <div>
                 <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
                     @(todo.IsCompleted ? "Undo" : "Complete")
