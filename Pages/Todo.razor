@@ -1,0 +1,86 @@
+@page "/todo"
+
+<PageTitle>TODO</PageTitle>
+
+<h1>TODO</h1>
+
+@*Inputfelt som binder data toveis mellom komponenter og C# field newTodo*@
+<input @bind="newTodo" class="form-control" placehoder="Enter a new todo" @onkeydown="HandleEnter">
+<button @onclick="AddTodo">Add Todo</button>
+
+@*En liste ofer todos*@
+<ul class="list-group">
+    @foreach (var todo in todos)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="text-decoration: @(todo.IsCompleted ? "Line-through": "none");">@todo.Title</span>
+            <div>
+                <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
+                    @(todo.IsCompleted ? "Undo" : "Complete")
+                </button>
+                <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
+                    Delete
+                </button>
+            </div>
+        </li>
+    }
+</ul>
+
+
+@code {
+
+    private string newTodo = string.Empty;
+
+    private List<TodoItem> todos = new();
+
+
+    #region Livssyklus i blazor
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("OnInitialized");
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.WriteLine("First Render");
+        }
+    }
+
+    #endregion
+
+    private void AddTodo()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodo))
+        {
+            todos.Add(new TodoItem { Title = newTodo });
+            newTodo = string.Empty;
+        }
+    }
+    private void HandleEnter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter")
+        {
+            AddTodo();
+        }
+    }
+
+    private void HandleComplete(TodoItem todo)
+    {
+        todo.IsCompleted = !todo.IsCompleted;
+    }
+
+    private void HandleDelete(TodoItem todo)
+    {
+        todos.Remove(todo);
+    }
+
+    private class TodoItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public bool IsCompleted { get; set; } = false;
+    }
+
+}
