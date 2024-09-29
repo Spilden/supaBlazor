@@ -1,104 +1,111 @@
-@page "/todo"
+@page "/"
+@using supaBlazor.Services
+
+@inject supaBlazor.Services.TodoService TodoService
 
 <PageTitle>TODO</PageTitle>
 
-<h1>TODO</h1>
+<h1>What ToDo</h1>
 
 @*Inputfelt som binder data toveis mellom komponenter og C# field newTodo*@
-<input @bind="newTodo" class="form-control" placehoder="Enter a new todo" @onkeydown="HandleEnter">
-<button @onclick="AddTodo">Add Todo</button>
+<div>
+    <input @bind="newTodo" class="form-control w-50" placeholder="Enter a new todo" @onkeyup="HandleEnter">
+    <button class="btn btn-success" @onclick="() => AddTodo(newTodo)" style="color: black;"
+        disabled="@string.IsNullOrWhiteSpace(newTodo)">
+        Add todo
+    </button>
 
-@*En liste over todos*@
-<ul class="list-group">
-    @foreach (var todo in todos.Where(t => !t.IsCompleted))
-    {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span style="text-decoration: @(todo.IsCompleted ? "Line-through": "none");">@todo.Title</span>
-            <div>
-                <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
-                    @(todo.IsCompleted ? "Undo" : "Complete")
-                </button>
-                <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
-                    Delete
-                </button>
-            </div>
-        </li>
-    }
-</ul>
+    <h3 class="text-center mt-4">
+        @(!TodoService.Todos.Any(todo => !todo.IsCompleted)
+            ? "Congratulations there's nothing more to do!"
+            : $"Todo's to complete ({TodoService.Todos.Count(todo => !todo.IsCompleted)})")
+    </h3>
 
-@*En liste over fullførte TODO's*@
-<ul class="list-group">
-    @foreach (var todo in todos.Where(t => t.IsCompleted))
-    {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span style="text-decoration: @(todo.IsCompleted ? "Line-through" : "none");">@todo.Title</span>
-            <div>
-                <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
-                    @(todo.IsCompleted ? "Undo" : "Complete")
-                </button>
-                <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
-                    Delete
-                </button>
-            </div>
-        </li>
-    }
-</ul>
+    @*En liste over todos*@
+    <div class="card mb-4">
+        <ul class="list-group list-group-flush">
+            @foreach (var todo in TodoService.Todos.Where(t => !t.IsCompleted))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@todo.Title</span>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
+                            @(todo.IsCompleted ? "Undo" : "Complete")
+                        </button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
+                            Delete
+                        </button>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div>
+    <h3 class="text-center">Completed Todo's (@TodoService.Todos.Count(todo => todo.IsCompleted))</h3>
+    <div class="card">
+        <ul class="list-group list-group-flush">
+            @foreach (var todo in TodoService.Todos.Where(t => t.IsCompleted))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted" style="text-decoration: line-through">@todo.Title</span>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning btn-sm" @onclick="() => HandleComplete(todo)">
+                            @(todo.IsCompleted ? "Undo" : "Complete")
+                        </button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
+                            Delete
+                        </button>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="d-flex justify-content-end p-3">
+        <button class="btn btn-primary" @onclick="() => HandleClearCompleted()"
+            disabled="@(!TodoService.Todos.Any(i => i.IsCompleted))">
+            Clear Completed
+        </button>
+    </div>
+</div>
 
 
 @code {
 
     private string newTodo = string.Empty;
 
-    private List<TodoItem> todos = new();
-
-
-    #region Livssyklus i blazor
-    protected override void OnInitialized()
+    public void AddTodo(string title)
     {
-        Console.WriteLine("OnInitialized");
-        base.OnInitialized();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
+        if (!string.IsNullOrWhiteSpace(title))
         {
-            Console.WriteLine("First Render");
+            TodoService.Todos.Add(new TodoService.TodoItem { Title = title });
         }
+        newTodo = string.Empty;
     }
 
-    #endregion
-
-    private void AddTodo()
-    {
-        if (!string.IsNullOrWhiteSpace(newTodo))
-        {
-            todos.Add(new TodoItem { Title = newTodo });
-            newTodo = string.Empty;
-        }
-    }
     private void HandleEnter(KeyboardEventArgs e)
     {
-        if (e.Code == "Enter")
+        if (e.Key == "Enter")
         {
-            AddTodo();
+            AddTodo(newTodo);
         }
     }
 
-    private void HandleComplete(TodoItem todo)
+    public void HandleComplete(TodoService.TodoItem item)
     {
-        todo.IsCompleted = !todo.IsCompleted;
+        item.IsCompleted = !item.IsCompleted;
     }
 
-    private void HandleDelete(TodoItem todo)
+    public void HandleDelete(TodoService.TodoItem item)
     {
-        todos.Remove(todo);
+        TodoService.Todos.Remove(item);
     }
 
-    private class TodoItem
+    public void HandleClearCompleted()
     {
-        public string Title { get; set; } = string.Empty;
-        public bool IsCompleted { get; set; } = false;
+        TodoService.Todos.RemoveAll(i => i.IsCompleted);
     }
+
 
 }
