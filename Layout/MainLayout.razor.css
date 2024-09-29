@@ -2,6 +2,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background-color: #005752;
+}
+
+.page-background {
+    
+    min-height: 100vh;
 }
 
 main {
@@ -13,7 +19,7 @@ main {
 }
 
 .top-row {
-    background-color: #f7f7f7;
+    background-color: #005752;
     border-bottom: 1px solid #d6d5d5;
     justify-content: flex-end;
     height: 3.5rem;
