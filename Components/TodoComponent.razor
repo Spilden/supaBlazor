@@ -1,0 +1,62 @@
+<div style="margin: 10px;">
+    <input style="margin-bottom: 10px; margin-top: 20px;" @bind="newTodo" class="form-control w-50"
+        placeholder="Enter a new todo" @onkeyup="HandleEnter">
+    <button class="btn btn-success" @onclick="() => AddTodo(newTodo)" style="color: black;"
+        disabled="@string.IsNullOrWhiteSpace(newTodo)">
+        Add todo
+    </button>
+</div>
+
+<div>
+    <h3>Uncompleted todo list</h3>
+    <ul class="list-group list-group-flush">
+        @foreach (var todo in Todos)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>@todo.Title</span>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
+                        Complete
+                    </button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
+                        Delete
+                    </button>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [CascadingParameter]
+    public NewTodo Parent { get; set; }
+
+    [Parameter]
+    public List<NewTodo.TodoItem> Todos { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<NewTodo.TodoItem> OnComplete { get; set; }
+
+    private string newTodo = string.Empty;
+
+    private void HandleComplete(NewTodo.TodoItem todo)
+    {
+        Parent.MarkComplete(todo);
+    }
+
+    private void HandleDelete(NewTodo.TodoItem todo)
+    {
+        Todos.Remove(todo);
+    }
+
+    private void HandleEnter()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodo)) AddTodo(newTodo);
+    }
+
+    private void AddTodo(String todoName)
+    {
+        Todos.Add(new NewTodo.TodoItem { Title = todoName });
+        newTodo = string.Empty;
+    }
+}
