@@ -1,64 +1,76 @@
 @page "/newTodo"
 
-
-<div style="margin: 10px;">
-    <button class="btn btn-primary" @onclick="() => ShowTodoComponent(Todos, OnComplete)">
-        Uncompleted Todo's
-    </button>
-    <button class="btn btn-primary" @onclick="() => ShowCompletedComponent(Completed, onUndoComplete)">
-        Completed Todo's
-    </button>
-</div>
-
 <CascadingValue Value="this">
+    <div style="margin: 10px;">
+        <button class="btn btn-primary" @onclick="ShowTodoComponent">
+            Active Todo's
+        </button>
+        <button class="btn btn-primary" @onclick="ShowCompletedComponent">
+            Completed Todo's
+        </button>
+    </div>
+
+
     <DynamicComponent Type="currentComponent" Parameters="componentParameters" />
 </CascadingValue>
 
 @code {
-    private List<TodoItem> Todos = new();
-    private List<TodoItem> Completed = new();
+    public List<TodoItem> ActiveTodos = new();
+    public List<TodoItem> CompletedTodos = new();
 
     private Type currentComponent = typeof(TodoComponent);
     private Dictionary<string, object> componentParameters = new();
 
-    private void ShowTodoComponent(List<TodoItem> todos, EventCallback<TodoItem> onComplete)
+    private void ShowTodoComponent()
     {
         currentComponent = typeof(TodoComponent);
-        componentParameters = new Dictionary<string, object>{
-{"Todos", todos},
-{"OnComplete", onComplete}
+        componentParameters = new Dictionary<string, object>
+{
+{"OnComplete", EventCallback.Factory.Create<TodoItem>(this, CompleteTodoItem)}
 };
     }
 
-    private void ShowCompletedComponent(List<TodoItem> completed, EventCallback<TodoItem> onUndoComplete)
+    private void ShowCompletedComponent()
     {
         currentComponent = typeof(CompletedComponent);
-        componentParameters = new Dictionary<string, object>{
-{"CompletedTodos", completed},
-{"OnUndoComplete", onUndoComplete}
+        componentParameters = new Dictionary<string, object>
+{
+{"OnUndoComplete", EventCallback.Factory.Create<TodoItem>(this, UndoCompleteTodoItem)}
 };
     }
 
-    public void MarkComplete(TodoItem todo)
+    public void AddTodoItem(String todoName)
     {
-        Todos.Remove(todo);
-        todo.IsCompleted = true;
-        Completed.Add(todo);
+        ActiveTodos.Add(new TodoItem { Title = todoName });
     }
 
-    public void UndoComplete(TodoItem todo)
+    public void CompleteTodoItem(TodoItem todo)
     {
-        Completed.Remove(todo);
+        ActiveTodos.Remove(todo);
+        todo.IsCompleted = true;
+        CompletedTodos.Add(todo);
+    }
+
+    public void UndoCompleteTodoItem(TodoItem todo)
+    {
+        CompletedTodos.Remove(todo);
         todo.IsCompleted = false;
-        Todos.Add(todo);
+        ActiveTodos.Add(todo);
+    }
+
+    public void DeleteTodoItem(TodoItem todo)
+    {
+        ActiveTodos.Remove(todo);
+    }
+
+    public void ClearCompletedTodos()
+    {
+        CompletedTodos.Clear();
     }
 
     public class TodoItem
     {
-        public string Title { get; set; } = string.Empty;
+        public required string Title { get; set; }
         public bool IsCompleted { get; set; }
     }
-
-    private EventCallback<TodoItem> OnComplete => EventCallback.Factory.Create<TodoItem>(this, MarkComplete);
-    private EventCallback<TodoItem> onUndoComplete => EventCallback.Factory.Create<TodoItem>(this, UndoComplete);
 }
