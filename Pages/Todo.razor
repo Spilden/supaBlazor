@@ -1,111 +1,76 @@
-@page "/todo"
-@using supaBlazor.Services
+@page "/Todo"
 
-@inject supaBlazor.Services.TodoService TodoService
-
-<PageTitle>TODO</PageTitle>
-
-<h1>What ToDo</h1>
-
-@*Inputfelt som binder data toveis mellom komponenter og C# field newTodo*@
-<div>
-    <input @bind="newTodo" class="form-control w-50" placeholder="Enter a new todo" @onkeyup="HandleEnter">
-    <button class="btn btn-success" @onclick="() => AddTodo(newTodo)" style="color: black;"
-        disabled="@string.IsNullOrWhiteSpace(newTodo)">
-        Add todo
-    </button>
-
-    <h3 class="text-center mt-4">
-        @(!TodoService.Todos.Any(todo => !todo.IsCompleted)
-            ? "Congratulations there's nothing more to do!"
-            : $"Todo's to complete ({TodoService.Todos.Count(todo => !todo.IsCompleted)})")
-    </h3>
-
-    @*En liste over todos*@
-    <div class="card mb-4">
-        <ul class="list-group list-group-flush">
-            @foreach (var todo in TodoService.Todos.Where(t => !t.IsCompleted))
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>@todo.Title</span>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm" @onclick="() => HandleComplete(todo)">
-                            @(todo.IsCompleted ? "Undo" : "Complete")
-                        </button>
-                        <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
-                            Delete
-                        </button>
-                    </div>
-                </li>
-            }
-        </ul>
-    </div>
-</div>
-
-<div>
-    <h3 class="text-center">Completed Todo's (@TodoService.Todos.Count(todo => todo.IsCompleted))</h3>
-    <div class="card">
-        <ul class="list-group list-group-flush">
-            @foreach (var todo in TodoService.Todos.Where(t => t.IsCompleted))
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="text-muted" style="text-decoration: line-through">@todo.Title</span>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-warning btn-sm" @onclick="() => HandleComplete(todo)">
-                            @(todo.IsCompleted ? "Undo" : "Complete")
-                        </button>
-                        <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(todo)">
-                            Delete
-                        </button>
-                    </div>
-                </li>
-            }
-        </ul>
-    </div>
-    <div class="d-flex justify-content-end p-3">
-        <button class="btn btn-primary" @onclick="() => HandleClearCompleted()"
-            disabled="@(!TodoService.Todos.Any(i => i.IsCompleted))">
-            Clear Completed
+<CascadingValue Value="this">
+    <div style="margin: 10px;">
+        <button class="btn btn-primary" @onclick="ShowTodoComponent">
+            Active Todo's
+        </button>
+        <button class="btn btn-primary" @onclick="ShowCompletedComponent">
+            Completed Todo's
         </button>
     </div>
-</div>
 
+
+    <DynamicComponent Type="currentComponent" Parameters="componentParameters" />
+</CascadingValue>
 
 @code {
+    public List<TodoItem> ActiveTodos = new();
+    public List<TodoItem> CompletedTodos = new();
 
-    private string newTodo = string.Empty;
+    private Type currentComponent = typeof(ActiveTodoComponent);
+    private Dictionary<string, object> componentParameters = new();
 
-    public void AddTodo(string title)
+    private void ShowTodoComponent()
     {
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            TodoService.Todos.Add(new TodoService.TodoItem { Title = title });
-        }
-        newTodo = string.Empty;
+        currentComponent = typeof(ActiveTodoComponent);
+        componentParameters = new Dictionary<string, object>
+{
+{"OnComplete", EventCallback.Factory.Create<TodoItem>(this, CompleteTodoItem)}
+};
     }
 
-    private void HandleEnter(KeyboardEventArgs e)
+    private void ShowCompletedComponent()
     {
-        if (e.Key == "Enter")
-        {
-            AddTodo(newTodo);
-        }
+        currentComponent = typeof(CompletedTodoComponent);
+        componentParameters = new Dictionary<string, object>
+{
+{"OnUndoComplete", EventCallback.Factory.Create<TodoItem>(this, UndoCompleteTodoItem)}
+};
     }
 
-    public void HandleComplete(TodoService.TodoItem item)
+    public void AddTodoItem(String todoName)
     {
-        item.IsCompleted = !item.IsCompleted;
+        ActiveTodos.Add(new TodoItem { Title = todoName });
     }
 
-    public void HandleDelete(TodoService.TodoItem item)
+    public void CompleteTodoItem(TodoItem todo)
     {
-        TodoService.Todos.Remove(item);
+        ActiveTodos.Remove(todo);
+        todo.IsCompleted = true;
+        CompletedTodos.Add(todo);
     }
 
-    public void HandleClearCompleted()
+    public void UndoCompleteTodoItem(TodoItem todo)
     {
-        TodoService.Todos.RemoveAll(i => i.IsCompleted);
+        CompletedTodos.Remove(todo);
+        todo.IsCompleted = false;
+        ActiveTodos.Add(todo);
     }
 
+    public void DeleteTodoItem(TodoItem todo)
+    {
+        ActiveTodos.Remove(todo);
+    }
 
+    public void ClearCompletedTodos()
+    {
+        CompletedTodos.Clear();
+    }
+
+    public class TodoItem
+    {
+        public required string Title { get; set; }
+        public bool IsCompleted { get; set; }
+    }
 }

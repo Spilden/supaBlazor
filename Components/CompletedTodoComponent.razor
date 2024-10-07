@@ -19,12 +19,12 @@
 
 @code {
     [CascadingParameter]
-    public required NewTodo Parent { get; set; }
+    public required Todo Parent { get; set; }
 
     [Parameter]
-    public EventCallback<NewTodo.TodoItem> OnUndoComplete { get; set; }
+    public EventCallback<Todo.TodoItem> OnUndoComplete { get; set; }
 
-    private void HandleUndo(NewTodo.TodoItem todo)
+    private void HandleUndo(Todo.TodoItem todo)
     {
         Parent.UndoCompleteTodoItem(todo);
     }
