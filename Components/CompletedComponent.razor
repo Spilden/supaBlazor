@@ -1,7 +1,7 @@
 <div style="margin: 10px;">
     <h3>Completed todo list</h3>
     <ul class="list-group list-group-flush">
-        @foreach (var todo in CompletedTodos)
+        @foreach (var todo in Parent.CompletedTodos)
         {
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>@todo.Title</span>
@@ -13,17 +13,19 @@
             </li>
         }
     </ul>
+    <button style="margin-top: 20px;" class="btn btn-danger" @onclick="() => Parent.ClearCompletedTodos()">Clear
+        Completed Todo's</button>
 </div>
 
 @code {
-    [Parameter]
-    public List<NewTodo.TodoItem> CompletedTodos { get; set; } = new();
+    [CascadingParameter]
+    public required NewTodo Parent { get; set; }
 
     [Parameter]
     public EventCallback<NewTodo.TodoItem> OnUndoComplete { get; set; }
 
-    private async Task HandleUndo(NewTodo.TodoItem todo)
+    private void HandleUndo(NewTodo.TodoItem todo)
     {
-        await OnUndoComplete.InvokeAsync(todo);
+        Parent.UndoCompleteTodoItem(todo);
     }
 }
