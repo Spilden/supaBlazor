@@ -8,7 +8,8 @@
             <div>
                 @alert
             </div>
-            <button type="button" class="btn-close" aria-label="Close" @onclick="() => completeAlerts.Remove(alert)"></button>
+            <button type="button" class="btn-close" aria-label="Close"
+                @onclick="() => completeAlerts.Remove(alert)"></button>
         </div>
     }
 </div>
@@ -29,7 +30,7 @@
         @foreach (var todo in Parent.ActiveTodos)
         {
             <li class="list-group-item d-flex justify-content-between align-items-center list-text-style">
-                <span>@todo.Title</span>
+                <span class="list-text">@todo.Title</span>
                 <div class="d-flex gap-2">
                     <button class="btn btn-success btn-sm button-text-style" @onclick="() => CompleteTodo(todo)">
                         Complete
@@ -52,12 +53,16 @@
 
     private string newTodo = string.Empty;
     private List<string> completeAlerts = new List<string>();
+
     private void CompleteTodo(Todo.TodoItem todo)
     {
         Parent.CompleteTodoItem(todo);
         completeAlerts.Add($"{todo.Title} is completed!");
+        if (completeAlerts.Count > 4)
+        {
+            completeAlerts.RemoveAt(0);
+        }
     }
-
     private void DeleteTodoItem(Todo.TodoItem todo)
     {
         Parent.DeleteTodoItem(todo);
@@ -67,7 +72,6 @@
     {
         NewTodo();
     }
-
     private void NewTodo()
     {
         if (!string.IsNullOrWhiteSpace(newTodo)) Parent.AddTodoItem(newTodo);

@@ -8,7 +8,6 @@
 
 main {
     flex: 1;
-    overflow-y: auto;
 }
 
 .top-row {
@@ -47,12 +46,6 @@ main {
 @media (min-width: 641px) {
     .page {
         flex-direction: row;
-    }
-
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
     }
 
     .top-row.auth ::deep a:first-child {
