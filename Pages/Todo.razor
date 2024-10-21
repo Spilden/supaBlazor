@@ -1,13 +1,20 @@
-@page "/Todo"
+@page "/"
 
 <CascadingValue Value="this">
-    <div style="margin: 10px;">
-        <button class="btn btn-primary" @onclick="ShowTodoComponent">
-            Active Todo's
-        </button>
-        <button class="btn btn-primary" @onclick="ShowCompletedComponent">
-            Completed Todo's
-        </button>
+    <div class="container main-button-container">
+        <div class="row">
+            <div class="col-sm">
+                <button class="btn btn-primary w-100 button-text-style" @onclick="ShowTodoComponent">
+                    Active Todo's
+                </button>
+            </div>
+            <div class="col-sm">
+                <button class="btn btn-primary w-100 button-text-style
+                " @onclick="ShowCompletedComponent" disabled="@(CompletedTodos.Count == 0)">
+                    Completed Todo's
+                </button>
+            </div>
+        </div>
     </div>
 
 
@@ -49,6 +56,7 @@
         ActiveTodos.Remove(todo);
         todo.IsCompleted = true;
         CompletedTodos.Add(todo);
+        StateHasChanged();
     }
 
     public void UndoCompleteTodoItem(TodoItem todo)
@@ -56,6 +64,7 @@
         CompletedTodos.Remove(todo);
         todo.IsCompleted = false;
         ActiveTodos.Add(todo);
+        StateHasChanged();
     }
 
     public void DeleteTodoItem(TodoItem todo)
@@ -66,6 +75,7 @@
     public void ClearCompletedTodos()
     {
         CompletedTodos.Clear();
+        StateHasChanged();
     }
 
     public class TodoItem
