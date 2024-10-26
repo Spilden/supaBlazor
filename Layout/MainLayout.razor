@@ -1,9 +1,24 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthService AuthService
 <div class="page">
     <main>
         <div class="top-row px-4">
             <div class="header-container">
                 <h1 class="header-text-style">Todo App</h1>
+            </div>
+            <div class="text-center">
+                @if (isAuthenticated)
+                {
+                    <NavLink class="btn btn-primary" href="logout">
+                        Logout
+                    </NavLink>
+                }
+                else
+                {
+                    <NavLink class="btn btn-primary" href="login">
+                        Login
+                    </NavLink>
+                }
             </div>
         </div>
 
@@ -12,3 +27,27 @@
         </article>
     </main>
 </div>
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticated();
+        AuthService.OnAuthStateChanged += UpdateAuthState;
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= UpdateAuthState;
+    }
+
+    private void UpdateAuthState()
+    {
+        InvokeAsync(async () =>
+        {
+            isAuthenticated = await AuthService.IsAuthenticated();
+            StateHasChanged();
+        });
+    }
+}
