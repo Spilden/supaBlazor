@@ -1,4 +1,6 @@
 @page "/"
+@inject AuthService AuthService
+@inject NavigationManager NavMng
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -74,6 +76,11 @@
 </CascadingValue>
 
 @code {
+    protected override async Task OnInitializedAsync(){
+        if(!await AuthService.IsAuthenticated()){
+            NavMng.NavigateTo("/login");
+        }
+    }
     public List<TodoItem> ActiveTodos = new();
     public List<TodoItem> CompletedTodos = new();
 

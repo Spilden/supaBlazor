@@ -120,15 +120,7 @@ a, .btn-link {
     margin:auto;
 }
 
-.header-container{
-    background-color: rgb(181, 101, 29);
-    border-radius: 50%;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    padding-left: 4rem;
-    padding-right: 4rem;
-    margin: auto;
-}
+
 
 .list-group{
     border-top-left-radius: 0;

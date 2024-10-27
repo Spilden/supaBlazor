@@ -6,6 +6,9 @@ public class AuthService
 
     private const string TokenKey = "authToken";
 
+    private string _username;
+    public string Username => _username;
+
     public event Action OnAuthStateChanged;
 
     public AuthService(ILocalStorageService localStorage)
@@ -17,6 +20,7 @@ public class AuthService
     {
         if (username == "admin" && password == "password")
         {
+            _username = username;
             await _localStorage.SetItemAsync(TokenKey, "fake-jwt-token");
             NotifyAuthStateChanged();
             return true;

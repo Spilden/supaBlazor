@@ -1,7 +1,7 @@
 @page "/login"
 @using System.ComponentModel.DataAnnotations;
 @inject AuthService AuthService
-@inject NavigationManager Navigation
+@inject NavigationManager NavMng
 
 <h3>Login</h3>
 @if (!string.IsNullOrEmpty(errorMessage))
@@ -25,6 +25,11 @@
 
 @code {
 
+    protected override async Task OnInitializedAsync(){
+        if(await AuthService.IsAuthenticated()){
+            NavMng.NavigateTo("/");
+        }
+    }
     private UserLogin userLogin = new UserLogin();
     private string errorMessage;
 
@@ -33,7 +38,7 @@
         var success = await AuthService.Login(userLogin.Username, userLogin.Password);
         if (success)
         {
-            Navigation.NavigateTo("/");
+            NavMng.NavigateTo("/");
         }
         else
         {
