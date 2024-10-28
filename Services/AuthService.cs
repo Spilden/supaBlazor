@@ -8,7 +8,6 @@ public class AuthService
 
     private string _username;
     public string Username => _username;
-
     public event Action OnAuthStateChanged;
 
     public AuthService(ILocalStorageService localStorage)
