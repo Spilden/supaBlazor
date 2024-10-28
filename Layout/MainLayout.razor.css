@@ -40,7 +40,10 @@ main {
     padding-bottom: 1rem;
     padding-left: 4rem;
     padding-right: 4rem;
+    min-width: 330px;
+    max-width: 330px;
     margin: auto;
+    margin-top: 10px;
 }
 
 @media (max-width: 640.98px) {

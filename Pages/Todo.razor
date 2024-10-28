@@ -76,11 +76,11 @@
 </CascadingValue>
 
 @code {
-    protected override async Task OnInitializedAsync(){
+    @* protected override async Task OnInitializedAsync(){
         if(!await AuthService.IsAuthenticated()){
             NavMng.NavigateTo("/login");
         }
-    }
+    } *@
     public List<TodoItem> ActiveTodos = new();
     public List<TodoItem> CompletedTodos = new();
 
