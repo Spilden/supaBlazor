@@ -54,13 +54,16 @@
     private string newTodo = string.Empty;
     private List<string> completeAlerts = new List<string>();
 
-    private void CompleteTodo(Todo.TodoItem todo)
+    private async Task CompleteTodo(Todo.TodoItem todo)
     {
-        Parent.CompleteTodoItem(todo);
-        completeAlerts.Add($"{todo.Title} is completed!");
-        if (completeAlerts.Count > 4)
+        if (OnComplete.HasDelegate)
         {
-            completeAlerts.RemoveAt(0);
+            await OnComplete.InvokeAsync(todo);
+            completeAlerts.Add($"{todo.Title} is completed!");
+            if (completeAlerts.Count > 4)
+            {
+                completeAlerts.RemoveAt(0);
+            }
         }
     }
     private void DeleteTodoItem(Todo.TodoItem todo)

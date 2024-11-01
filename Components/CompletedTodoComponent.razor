@@ -44,11 +44,14 @@
 
     private void HandleUndo(Todo.TodoItem todo)
     {
-        Parent.UndoCompleteTodoItem(todo);
-        undoAlerts.Add($"{todo.Title} is no longer completed!");
-        if (undoAlerts.Count > 4)
+        if (OnUndoComplete.HasDelegate)
         {
-            undoAlerts.RemoveAt(0);
+            Parent.UndoCompleteTodoItem(todo);
+            undoAlerts.Add($"{todo.Title} is no longer completed!");
+            if (undoAlerts.Count > 4)
+            {
+                undoAlerts.RemoveAt(0);
+            }
         }
     }
 }

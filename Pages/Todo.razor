@@ -72,6 +72,7 @@
         </div>
     </div>
 
+
     <DynamicComponent Type="currentComponent" Parameters="componentParameters" />
 </CascadingValue>
 
@@ -82,6 +83,7 @@
         {
             NavMng.NavigateTo("/login");
         }
+        ShowTodoComponent();
     }
     public List<TodoItem> ActiveTodos = new();
     public List<TodoItem> CompletedTodos = new();
